@@ -14,4 +14,4 @@ exports.myTrie = myTrie;
                   
 exports.item1 = item1;
 exports.item2 = item2;
-exports.otherItems = oherItems;
+exports.otherItems = otherItems;
