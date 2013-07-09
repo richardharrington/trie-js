@@ -1,4 +1,4 @@
-var Trie = require('trie');
+var Trie = require('./trie');
 var myTrie = new Trie();
 
 var item1 = {ate: 7};
