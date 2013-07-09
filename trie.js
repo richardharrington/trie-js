@@ -18,7 +18,10 @@ Trie.prototype = {
         return splitWord(word, function() {
             return self;
         }, function(firstLetter, restOfWord) {
-            return self.children[firstLetter] && self.children[firstLetter].getNode(restOfWord);
+            var children = self.children;
+            return children && children[firstLetter] && children[firstLetter].getNode(restOfWord);
+        });
+    },
 
     set: function(word, val) {
         if (typeof word === "object") {
@@ -69,21 +72,18 @@ Trie.prototype = {
 
 	getSortedWordsFromPrefix: function(prefix){
 		return this.getWordsFromPrefix(prefix).sort();
-	}
+	},
+
+    inspect: function(){
+        var obj = {};
+        var keys = this.getSortedWordsFromPrefix("");
+        var key;
+        for (var i = 0, len = keys.length; i < len; i++) {
+            key = keys[i];
+            obj[key] = this.get(key);
+        }
+        return obj;
+    }
 };
 
-var myTrie = new Trie();
-var words = ["", "a", "at","ads","adva","but","at","but","but"];
-myTrie.insertWords(words);
-
-// a = ["a", 2];
-// b = ["b", 0];
-// c = ["c", 1];
-// d = ["d", 5];
-// e = ["e", 9];
-
-// var list = [a,b,c,d,e];
-// console.log(list.sort(function(a,b) {return a[1] - b[1]}));
-
-console.log(myTrie.getSortedWordsFromPrefix(""));
-
+module.exports = Trie;
