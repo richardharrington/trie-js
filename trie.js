@@ -51,8 +51,9 @@
         },
 
         setNodes: function(words, cb) {
+            var self = this;
             words.forEach(function(word) {
-                this.setNode(word, cb);
+                self.setNode(word, cb);
             });
         },
 
@@ -84,23 +85,66 @@
             return results;
         },
 
-        getKeysFromPrefix: function(prefix) {
+        getSuffixesFromPrefix: function(prefix) {
+            var subTrie = this.getNode(prefix);
             var results = [];
-            for (var key in this.getKeyValuePairsFromPrefix(prefix)) {
-                results.push(key);
-            }
+            subTrie.walk(function(suffix, val) {
+                if (val !== undefined) {
+                    results.push(suffix);
+                }
+            });
             return results;
         },
-            
-        getSortedKeysFromPrefix: function(prefix){
-            return this.getKeysFromPrefix(prefix).sort();
+
+        getKeysFromPrefix: function(prefix) {
+            return this.getSuffixesFromPrefix(prefix).map(function(suffix) {
+                return prefix + suffix;
+            });
         },
 
         inspect: function(){
             return this.getKeyValuePairsFromPrefix("");
+        },
+
+        inspectKeys: function() {
+            return this.getKeysFromPrefix("");
         }
     };
 
+    // Now for WordCountStore
+
+    var addOrIncrementVal = function(node) {
+        node.val = (node.val? node.val : 0) + 1;
+    };
+
+    var WordCountStore = function(){
+        this.trie = new Trie();
+    }
+        
+    WordCountStore.prototype = {
+
+        insertWord: function(word) {
+            this.trie.setNode(word, addOrIncrementVal);
+        },
+
+        insertWords: function(words) {
+            this.trie.setNodes(words, addOrIncrementVal);
+        },
+
+        getWords: function() {
+            return this.trie.inspectKeys();
+        },
+
+        getWordCounts: function() {
+            return this.trie.inspect();
+        }
+    };
+
+    // And for an auto-completer, the basic functionality would just be to get a list using
+    // the "getKeysFromPrefix" method from Trie. Other stuff could be added,
+    // but it's not currently implemented as a separate class.
+
     exports.Trie = Trie;
+    exports.WordCountStore = WordCountStore;
 
 }(typeof exports === 'undefined' ? this : exports));
