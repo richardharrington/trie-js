@@ -1,5 +1,4 @@
 # trie-js
-=========
 
 A key-value store using the trie data structure, and a word-frequency counter based on it.
 
