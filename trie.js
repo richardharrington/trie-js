@@ -23,29 +23,52 @@ Trie.prototype = {
         });
     },
 
-    set: function(word, val) {
-        if (typeof word === "object") {
-            for (var key in word) {
-                this.set(key, word[key]);
+    setNode: function(word, cb) {
+        var self = this;
+        splitWord(word, function() {
+            if (cb) {
+                cb(self);
             }
-        }
-        else {
-            var self = this;
-            splitWord(word, function() {
-                self.val = val;
-            }, function(firstLetter, restOfWord) {
-                self.children = self.children || {};
-                self.children[firstLetter] = self.children[firstLetter] || new Trie();
-                self.children[firstLetter].set(restOfWord, val);
-            });
-        }
+        }, function(firstLetter, restOfWord) {
+            self.children = self.children || {};
+            self.children[firstLetter] = self.children[firstLetter] || new Trie();
+            self.children[firstLetter].setNode(restOfWord, cb);
+        });
     },
 
-    get: function(word) {
+    setNodes: function(words, cb) {
+        words.forEach(function(word) {
+            this.setNode(word, cb);
+        });
+    },
+
+    getValue: function(word) {
         var node = this.getNode(word);
         return node && node.val;
     },
     
+    setValue: function(word, val) {
+        this.setNode(word, function(node) {
+            node.val = val;
+        });
+    },
+    
+    setValues: function(obj) {
+        for (var key in obj) {
+            this.setValue(key, obj[key]);
+        }
+    },
+        
+	getWordsFromPrefix: function(prefix){
+		var subTree = this.getNode(prefix);
+		var suffixes = subTree.getSuffixes();
+		var words = [];
+		for (var i = 0, len = suffixes.length; i < len; i++) { 
+			words.push(prefix + suffixes[i]);
+		}
+		return words;
+	},
+
 	getSuffixes: function() {
         var mainList = [];
         var list;
@@ -59,16 +82,6 @@ Trie.prototype = {
         }
         return mainList;
     },
-
-	getWordsFromPrefix: function(prefix){
-		var subTree = this.getNode(prefix);
-		var suffixes = subTree.getSuffixes();
-		var words = [];
-		for (var i = 0, len = suffixes.length; i < len; i++) { 
-			words.push(prefix + suffixes[i]);
-		}
-		return words;
-	},
 
 	getSortedWordsFromPrefix: function(prefix){
 		return this.getWordsFromPrefix(prefix).sort();
