@@ -13,6 +13,18 @@ function Trie(){
 	
 Trie.prototype = {
 
+    walk: function(cb, prefix) {
+        // not meant to be called with 2 arguments
+        // except recursively
+        if (arguments.length < 2) {
+            prefix = "";
+        }
+        cb(prefix, this.val);
+        for (var letterKey in this.children) {
+            this.children[letterKey].walk(cb, prefix + letterKey);
+        }
+    },
+
     getNode: function(word) {
         var self = this;
         return splitWord(word, function() {
@@ -58,44 +70,32 @@ Trie.prototype = {
             this.setValue(key, obj[key]);
         }
     },
-        
-	getWordsFromPrefix: function(prefix){
-		var subTree = this.getNode(prefix);
-		var suffixes = subTree.getSuffixes();
-		var words = [];
-		for (var i = 0, len = suffixes.length; i < len; i++) { 
-			words.push(prefix + suffixes[i]);
-		}
-		return words;
-	},
 
-	getSuffixes: function() {
-        var mainList = [];
-        var list;
-        var i, len;
-        for (var letterKey in this.children) {
-           list = this.children[letterKey].getSuffixes();
-           for (i = 0, len = list.length; i < len; i++) {
-               list[i] = letterKey + list[i];
-           }
-           mainList = mainList.concat(list);
-        }
-        return mainList;
+    getKeyValuePairsFromPrefix: function(prefix) {
+        var subTrie = this.getNode(prefix);
+        var results = {};
+        subTrie.walk(function(word, val) {
+            if (val !== undefined) {
+                results[prefix + word] = val;
+            }
+        });
+        return results;
     },
 
-	getSortedWordsFromPrefix: function(prefix){
-		return this.getWordsFromPrefix(prefix).sort();
+    getKeysFromPrefix: function(prefix) {
+        var results = [];
+        for (var key in this.getKeyValuePairsFromPrefix(prefix)) {
+            results.push(key);
+        }
+        return results;
+    },
+        
+	getSortedKeysFromPrefix: function(prefix){
+		return this.getKeysFromPrefix(prefix).sort();
 	},
 
     inspect: function(){
-        var obj = {};
-        var keys = this.getSortedWordsFromPrefix("");
-        var key;
-        for (var i = 0, len = keys.length; i < len; i++) {
-            key = keys[i];
-            obj[key] = this.get(key);
-        }
-        return obj;
+        return this.getKeyValuePairsFromPrefix("");
     }
 };
 
