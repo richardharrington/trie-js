@@ -15,18 +15,16 @@
         
     Trie.prototype = {
 
-        walk: function(cb, prefix) {
-            // not meant to be called with 2 arguments
-            // except recursively
-            if (arguments.length < 2) {
-                prefix = "";
+        walk: function(cb) {
+            function recur(node, prefix) {
+                cb(prefix, node.val);
+                for (var letterKey in node.children) {
+                    recur(node.children[letterKey], prefix + letterKey);
+                }
             }
-            cb(prefix, this.val);
-            for (var letterKey in this.children) {
-                this.children[letterKey].walk(cb, prefix + letterKey);
-            }
+            recur(this, "");
         },
-
+         
         getNode: function(word) {
             var self = this;
             return splitWord(word, function() {
