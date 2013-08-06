@@ -1,6 +1,6 @@
 # trie-js
 
-A key-value store using the trie data structure, and a word-frequency counter based on it.
+A key-value store using the [trie data structure](http://en.wikipedia.org/wiki/Trie), and a word-frequency counter based on it.
 
     var myTrie = new Trie();
     myTrie.setValue("ate", 7);
